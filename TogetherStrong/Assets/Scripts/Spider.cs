@@ -41,6 +41,12 @@ public class Spider : Enemy {
     [SerializeField]
     protected Animator anim;
 
+    [SerializeField]
+    protected int health = 1;
+
+    [SerializeField]
+    protected GameObject smokePrefab;
+
     // Use this for initialization
     void Start() {
         results = new Collider2D[2];
@@ -52,6 +58,12 @@ public class Spider : Enemy {
 
     // Update is called once per frame
     void Update() {
+        if(controller.collisionState.below) {
+            velocity.y = 0;
+        }
+
+        velocity.y += Constants.GRAVITY * Time.deltaTime;
+
         PlayerController player = null;
         var num = Physics2D.OverlapCircle(transform.position, angerRange, new ContactFilter2D() { useLayerMask = true, layerMask = LayerMask.GetMask("Slime") }, results);
         for(int i = 0; i < num; i++) {
@@ -80,7 +92,7 @@ public class Spider : Enemy {
             case SpiderState.Patrol:
                 velocity.x = facing * moveSpeed;
                 if(time > moveTime) {
-                    state = SpiderState.Patrol;
+                    state = SpiderState.Idle;
                     time = 0;
                 }
                 break;
@@ -116,6 +128,13 @@ public class Spider : Enemy {
     }
 
     public override void OnBounce(int amount) {
+        health -= amount;
+        if(health <= 0) {
+            var sp = Instantiate(smokePrefab);
+            sp.transform.position = transform.position;
+            Destroy(sp, 1f);
+            Destroy(this.gameObject);
+        }
         //TODO: DIE
     }
 }

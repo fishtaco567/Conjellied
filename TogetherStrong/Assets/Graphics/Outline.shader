@@ -54,7 +54,7 @@
                 float sob = abs(col10.a - coln10.a) + abs(col01.a - col0n1.a);
                 sob = saturate(sob);
 
-                col = lerp(_InsideColor, _EdgeColor, sob);
+                col = lerp(_InsideColor, _EdgeColor, sob) * (col / fixed4(72./255., 152./255., 79./255., 1));
 
                 return col;
             }

@@ -42,8 +42,19 @@ public class SlimeController : MonoBehaviour {
     [SerializeField]
     protected float gravReturn;
 
-    // Use this for initialization
+    protected float iframe;
+
+    public bool givesHighJump;
+
+    public bool givesShoot;
+
+    public bool isProjectile;
+
+    protected Collider2D[] results;
+
+    // Use this for initialwization
     void Start() {
+        results = new Collider2D[2];
         goalX = transform.position.x;
         moving = false;
         timeNotMoving = 0;
@@ -51,10 +62,13 @@ public class SlimeController : MonoBehaviour {
         facing = true;
         velocity = Vector2.zero;
         gravity = 1;
+        iframe = 0;
+        isProjectile = false;
     }
 
     public void SetVel(Vector2 vel) {
         velocity = vel;
+        controller.collisionState.below = false;
     }
 
     public void ReInit() {
@@ -67,12 +81,26 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void Hit() {
+        if(iframe > 0) {
+            return;
+        }
+
+        iframe = 0.3f;
+
         velocity = new Vector2(Random.Range(-3, 3), Random.Range(5, 10));
+        goalX = transform.position.x + Random.Range(-10, 10);
+        moving = true;
+        facing = goalX > transform.position.x ? true : false;
+    }
+
+    public void Shoot() {
+        isProjectile = true;
     }
 
     // Update is called once per frame
     void Update() {
-        if(controller.collisionState.below) {
+        iframe -= Time.deltaTime;
+        if(controller.collisionState.below && velocity.y < 0) {
             velocity.y = 0;
         } else {
             gravity = -1f;
@@ -110,7 +138,7 @@ public class SlimeController : MonoBehaviour {
                 timeNotMoving = 0;
             }
 
-            var hit = Physics2D.Raycast(transform.position.AsV2() + Vector2.up * 0.2f, Vector2.right, preJumpLength, LayerMask.GetMask("Default"));
+            var hit = Physics2D.Raycast(transform.position.AsV2() + Vector2.up * 0.2f, facing ? Vector2.right : Vector2.left, preJumpLength, LayerMask.GetMask("Default"));
             if(hit.collider != null && controller.collisionState.below) {
                 velocity.y += jumpSpeed;
             }
@@ -119,6 +147,19 @@ public class SlimeController : MonoBehaviour {
                 velocity.x = 0;
         }
 
+        if(isProjectile) {
+            if(controller.collisionState.below) {
+                isProjectile = false;
+            }
+
+            int num = controller.boxCollider.OverlapCollider(new ContactFilter2D() { useLayerMask = true, layerMask = LayerMask.GetMask("Enemy") }, results);
+            for(int i = 0; i < num; i++) {
+                var en = results[i].GetComponent<Enemy>();
+                if(en != null) {
+                    en.OnBounce(1);
+                }
+            }
+        }
 
         if(controller.collisionState.becameGroundedThisFrame && velocity.y < 10f) {
             gravity = 10;

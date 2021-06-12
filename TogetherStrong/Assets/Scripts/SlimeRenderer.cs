@@ -51,6 +51,7 @@ public class SlimeRenderer : MonoBehaviour {
     public float curLean;
 
     protected List<GameObject> slimeballs;
+    protected List<GameObject> eyes;
 
     protected List<Vector2> slimeballPositions;
     protected List<Vector2> slimeballVelocities;
@@ -61,7 +62,11 @@ public class SlimeRenderer : MonoBehaviour {
 
     protected Bounds boundingBox;
 
+    [SerializeField]
+    protected GameObject eyeBase;
+
     protected void Start() {
+        eyes = new List<GameObject>();
         boundingBox.min = new Vector3(-.1f, 0);
         boundingBox.max = new Vector3(.1f, .1f);
 
@@ -82,6 +87,13 @@ public class SlimeRenderer : MonoBehaviour {
             slimeball.transform.parent = transform;
             slimeball.SetActive(false);
             slimeballs.Add(slimeball);
+
+            if(i != 0 && i % 10 == 0) {
+                var eye = Instantiate(eyeBase);
+                eye.GetComponent<FollowThing>().thing = slimeball;
+                eye.SetActive(false);
+                eyes.Add(eye);
+            }
         }
 
         var curRadius = slimeballToSizeCurve.Evaluate(curNumSlimeballs);
@@ -92,6 +104,10 @@ public class SlimeRenderer : MonoBehaviour {
             slimeballPositions.Add(pos);
             slimeballVelocities.Add(Vector2.zero);
             slimeballs[i].transform.localPosition = pos + new Vector2(0, curRadius);
+            if(i != 0 && i % 10 == 0) {
+                var ind = (i / 10) - 1;
+                eyes[ind].SetActive(true);
+            }
         }
     }
 
@@ -120,6 +136,10 @@ public class SlimeRenderer : MonoBehaviour {
                     slimeballPositions.RemoveAt(slimeballPositions.Count - 1);
                     slimeballVelocities.RemoveAt(slimeballPositions.Count - 1);
                     slimeballs[index].SetActive(false);
+                    if(index != 0 && index % 10 == 0) {
+                        var ind = (index / 10) - 1;
+                        eyes[ind].SetActive(false);
+                    }
                 }
             } else if(slimeballPositions.Count < curNumSlimeballs) {
                 var toAdd = curNumSlimeballs - slimeballPositions.Count;
@@ -130,6 +150,10 @@ public class SlimeRenderer : MonoBehaviour {
                     slimeballVelocities.Add(Vector2.zero);
                     slimeballs[index].transform.localPosition = pos + origin;
                     slimeballs[index].SetActive(true);
+                    if(index != 0 && index % 10 == 0) {
+                        var ind = (index / 10) - 1;
+                        eyes[ind].SetActive(true);
+                    }
                 }
             }
         }

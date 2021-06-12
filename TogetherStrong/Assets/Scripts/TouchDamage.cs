@@ -24,12 +24,19 @@ public class TouchDamage : MonoBehaviour {
             var s = results[i].GetComponent<SlimeController>();
             var p = results[i].GetComponent<PlayerController>();
             if(p != null) {
-                if(noHitAbove && p.transform.position.y + 0.2f > col.bounds.max.y && p.velocity.y < 0) {
+                if(noHitAbove && p.transform.position.y > col.bounds.center.y && p.velocity.y < 0) {
                     p.Bounce(this.gameObject);
                     continue;
                 }
 
+                if(noHitAbove && p.transform.position.y > col.bounds.center.y && p.velocity.y > 5) {
+                    continue;
+                }
                 p.Hit();
+            }
+
+            if(s != null) {
+                s.Hit();
             }
         }
     }

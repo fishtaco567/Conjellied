@@ -2,8 +2,7 @@
 
 public class FollowThing : MonoBehaviour {
 
-    [SerializeField]
-    protected GameObject thing;
+    public GameObject thing;
 
     // Use this for initialization
     void Start() {
@@ -12,6 +11,6 @@ public class FollowThing : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        transform.position = thing.transform.position + new Vector3(0, 0, transform.position.z - 0.1f);
+        transform.position = new Vector3(thing.transform.position.x, thing.transform.position.y, 0) + new Vector3(0, 0, transform.position.z);
     }
 }
