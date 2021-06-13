@@ -52,6 +52,16 @@ public class SlimeController : MonoBehaviour {
 
     protected Collider2D[] results;
 
+    public GameObject callObj;
+    protected float callObjTime;
+
+    [SerializeField]
+    protected AudioClip jump;
+    [SerializeField]
+    protected AudioClip land;
+    [SerializeField]
+    protected AudioClip hurt;
+
     // Use this for initialwization
     void Start() {
         results = new Collider2D[2];
@@ -84,6 +94,8 @@ public class SlimeController : MonoBehaviour {
         if(iframe > 0) {
             return;
         }
+        if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+            AudioManager.Instance.PlayQuiet(hurt);
 
         iframe = 0.3f;
 
@@ -98,15 +110,15 @@ public class SlimeController : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
-        iframe -= Time.deltaTime;
+    void FixedUpdate() {
+        iframe -= Time.fixedDeltaTime;
         if(controller.collisionState.below && velocity.y < 0) {
             velocity.y = 0;
         } else {
             gravity = -1f;
         }
 
-        velocity.y += Constants.GRAVITY * Time.deltaTime;
+        velocity.y += Constants.GRAVITY * Time.fixedDeltaTime;
         if(moving) {
 
             if(transform.position.x > goalX && facing) {
@@ -121,7 +133,7 @@ public class SlimeController : MonoBehaviour {
                 if(transform.position.x > furthestPoint) {
                     furthestPoint = Mathf.Max(transform.position.x, furthestPoint);
                 } else {
-                    timeNotMoving += Time.deltaTime;
+                    timeNotMoving += Time.fixedDeltaTime;
                 }
             } else if(transform.position.x > goalX && !facing) {
                 velocity.x = -moveSpeed;
@@ -129,7 +141,7 @@ public class SlimeController : MonoBehaviour {
                 if(transform.position.x < furthestPoint) {
                     furthestPoint = Mathf.Min(transform.position.x, furthestPoint);
                 } else {
-                    timeNotMoving += Time.deltaTime;
+                    timeNotMoving += Time.fixedDeltaTime;
                 }
             }
 
@@ -138,9 +150,11 @@ public class SlimeController : MonoBehaviour {
                 timeNotMoving = 0;
             }
 
-            var hit = Physics2D.Raycast(transform.position.AsV2() + Vector2.up * 0.2f, facing ? Vector2.right : Vector2.left, preJumpLength, LayerMask.GetMask("Default"));
+            var hit = Physics2D.Raycast(transform.position.AsV2() + Vector2.up * 0.06f, facing ? Vector2.right : Vector2.left, preJumpLength, LayerMask.GetMask("Default"));
             if(hit.collider != null && controller.collisionState.below) {
                 velocity.y += jumpSpeed;
+                if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                    AudioManager.Instance.PlayQuiet(jump);
             }
         } else {
             if(controller.collisionState.below)
@@ -163,19 +177,36 @@ public class SlimeController : MonoBehaviour {
 
         if(controller.collisionState.becameGroundedThisFrame && velocity.y < 10f) {
             gravity = 10;
+            if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                AudioManager.Instance.PlayQuiet(land);
         }
         gravity += gravReturn * Mathf.Sign(1 - gravity) * -1f;
 
         slime.curLean = velocity.x * 0.5f;
         slime.curGravMod = gravity;
 
-        controller.move(velocity * Time.deltaTime);
+        controller.move(velocity * Time.fixedDeltaTime);
+
+        callObjTime -= Time.fixedDeltaTime;
+        if(callObjTime < 0) {
+            callObj.SetActive(false);
+        }
     }
 
+    [SerializeField]
+    protected AudioClip callResp;
+
     public void Call(float x) {
+        if(!moving) {
+            AudioManager.Instance.PlayQuiet(callResp);
+        }
+
         goalX = x;
         moving = true;
         facing = x > transform.position.x ? true : false;
+
+        callObj.SetActive(true);
+        callObjTime = 1f;
     }
 
 }

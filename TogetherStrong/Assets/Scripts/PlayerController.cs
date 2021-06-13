@@ -66,6 +66,23 @@ public class PlayerController : MonoBehaviour {
     protected bool canHighJump;
     protected bool canShoot;
 
+    public GameObject hjsp;
+    public GameObject shsp;
+
+    public GameObject callobj;
+    public float callobjTime;
+
+    [SerializeField]
+    protected AudioClip bounceSound;
+    [SerializeField]
+    protected AudioClip hurt;
+    [SerializeField]
+    protected AudioClip jumpS;
+    [SerializeField]
+    protected AudioClip land;
+    [SerializeField]
+    protected AudioClip throweeee;
+
     protected void Start() {
         slimeRenderer.curNumSlimeballs = slimeballsPerSlime * numSlimes;
         velocity = Vector2.zero;
@@ -80,7 +97,21 @@ public class PlayerController : MonoBehaviour {
         internalSlimes = new List<SlimeController>();
     }
 
-    protected void Update() {
+    protected void FixedUpdate() {
+        GameManager.Instance.player = this;
+
+        if(canHighJump) {
+            hjsp.SetActive(true);
+        } else {
+            hjsp.SetActive(false);
+        }
+
+        if(canShoot) {
+            shsp.SetActive(true);
+        } else {
+            shsp.SetActive(false);
+        }
+
         var curMoveSpeed = moveSpeed.Evaluate(numSlimes);
         var curJumpSpeed = jumpSpeed.Evaluate(numSlimes);
         var curChargeJumpSpeed = chargeJumpSpeed.Evaluate(numSlimes);
@@ -92,19 +123,25 @@ public class PlayerController : MonoBehaviour {
         var jump = replayer.GetButtonDown("Jump");
         var jumpHeld = replayer.GetButton("SuperJump");
         var shoot = replayer.GetButtonDown("Shoot");
-        var call = replayer.GetButtonDown("Call");
+        var call = replayer.GetButton("Call");
 
         if(controller.collisionState.below && jump && !jumpHeld && jumpChargeTime == 0) {
             velocity.y = curJumpSpeed;
+            AudioManager.Instance.PlayQuiet(jumpS);
         } else if(controller.collisionState.below && velocity.y < 0) {
             velocity.y = 0;
         }
 
-        if(controller.collisionState.below && !jump && jumpHeld) {
-            jumpChargeTime += Time.deltaTime;
+        if(velocity.y > 0 && controller.collisionState.above) {
+            velocity.y -= Mathf.Min(velocity.y, 1f);
+        }
+
+        if(controller.collisionState.below && !jump && jumpHeld && canHighJump) {
+            jumpChargeTime += Time.fixedDeltaTime;
             curGravMod = Mathf.Max(curGravMod, Mathf.Min((jumpChargeTime / reqJumpChargeTime), 1) * 5f);
         } else if(controller.collisionState.below && !jumpHeld && jumpChargeTime > 0.3f) {
             velocity.y = curChargeJumpSpeed * Mathf.Min(1, jumpChargeTime / reqJumpChargeTime);
+            AudioManager.Instance.PlayQuiet(jumpS);
             jumpChargeTime = 0;
         } else {
             jumpChargeTime = 0;
@@ -115,13 +152,14 @@ public class PlayerController : MonoBehaviour {
         }
 
         if(controller.collisionState.becameGroundedThisFrame && velocity.y < 10f) {
+            AudioManager.Instance.PlayQuiet(land);
             curGravMod = 10;
         }
 
         curGravMod += gravModReturnPerSec * Mathf.Sign(1 - curGravMod) * -1f;
         slimeRenderer.curGravMod = curGravMod;
 
-        velocity.y += Constants.GRAVITY * Time.deltaTime;
+        velocity.y += Constants.GRAVITY * Time.fixedDeltaTime;
 
         if(Mathf.Abs(horiz) > 0.1f) {
             velocity.x = horiz * curMoveSpeed;
@@ -141,7 +179,21 @@ public class PlayerController : MonoBehaviour {
 
         slimeRenderer.curLean = velocity.x * 0.5f;
 
-        controller.move(velocity * Time.deltaTime);
+        if(velocity.x == 0) {
+            velocity.x = Time.frameCount % 2 == 0 ? 0.01f : -0.01f;
+        }
+
+        if(velocity.y < -25f) {
+            velocity.y = -25f;
+        }
+
+        if(!isDead) {
+            controller.move(velocity * Time.fixedDeltaTime);
+        } else {
+            curGravMod = 10;
+            slimeRenderer.avoidSphereCoef = 0;
+            slimeRenderer.xCenter = 0;
+        }
 
         if(Mathf.Abs(velocity.x) > 0.1f) {
             if(velocity.x > 0) {
@@ -164,7 +216,14 @@ public class PlayerController : MonoBehaviour {
 
         controller.recalculateDistanceBetweenRays();
 
+        var callPressed = replayer.GetButtonDown("Call");
         if(call) {
+            if(callPressed) {
+                AudioManager.Instance.PlayQuiet(callSound);
+            }
+
+            callobj.SetActive(true);
+            callobjTime = 1f;
             var num = Physics2D.OverlapCircle(transform.position.AsV2(), callRange, new ContactFilter2D() { useLayerMask = true, layerMask = LayerMask.GetMask("OtherSlime") }, results);
             for(int i = 0; i < num; i++) {
                 var sc = results[i].GetComponent<SlimeController>();
@@ -174,24 +233,41 @@ public class PlayerController : MonoBehaviour {
             }
         }
 
+        callobjTime -= Time.fixedDeltaTime;
+        if(callobjTime < 0) {
+            callobj.SetActive(false);
+        }
+
         if(shoot && canShoot && numSlimes > 1) {
             var slime = RemoveSlime();
             slime.ReInit();
             slime.transform.position = transform.position + Vector3.up * numSlimes * 0.5f;
             slime.Shoot();
-            slime.SetVel(new Vector2(facing * 15, 10) + velocity);
+            slime.SetVel(new Vector2(facing * 10, 7) + velocity / 2);
+            AudioManager.Instance.Play(throweeee);
         }
 
-        iframeTime -= Time.deltaTime;
+        iframeTime -= Time.fixedDeltaTime;
     }
 
     protected float iframeTime;
+
+    [SerializeField]
+    protected AudioClip callSound;
 
     public void Hit() {
         if(iframeTime > 0) {
             return;
         }
+        AudioManager.Instance.PlayQuiet(hurt);
+
         velocity = new Vector2(Random.Range(-3, 3), Random.Range(5, 10));
+
+        if(numSlimes == 1) {
+            isDead = true;
+            StartCoroutine(OnDeath());
+            return;
+        }
 
         var numToRemove = numSlimes / 2;
 
@@ -206,7 +282,11 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    [SerializeField]
+    protected GameObject bopBoop;
+
     public void Bounce(GameObject other) {
+        AudioManager.Instance.Play(bounceSound);
         iframeTime = 0.5f;
         curGravMod = 20;
         velocity.y = jumpSpeed.Evaluate(numSlimes) * 0.66f;
@@ -214,6 +294,9 @@ public class PlayerController : MonoBehaviour {
         var en = other.GetComponent<Enemy>();
         if(en != null) {
             en.OnBounce(damagePerSlime * numSlimes);
+            var sp = Instantiate(bopBoop);
+            sp.transform.position = transform.position;
+            Destroy(sp, 2f);
         }
     }
 
@@ -259,6 +342,13 @@ public class PlayerController : MonoBehaviour {
 
     public int GetWeight() {
         return numSlimes * weightPerSlime;
+    }
+
+    public bool isDead = false;
+
+    public System.Collections.IEnumerator OnDeath() {
+        yield return new WaitForSeconds(2f);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);   
     }
 
 }

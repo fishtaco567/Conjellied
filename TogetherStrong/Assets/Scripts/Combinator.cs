@@ -8,6 +8,12 @@ public class Combinator : MonoBehaviour {
 
     protected Collider2D[] results;
 
+    [SerializeField]
+    protected GameObject smok;
+
+    [SerializeField]
+    protected AudioClip combine;
+
     // Use this for initialization
     void Start() {
         results = new Collider2D[5];
@@ -31,6 +37,11 @@ public class Combinator : MonoBehaviour {
             
             if(s != null) {
                 slimes.Add(s);
+                var sp = Instantiate(smok);
+                sp.transform.position = transform.position;
+                Destroy(sp.gameObject, 3f);
+                if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                    AudioManager.Instance.Play(combine);
             }
         }
 

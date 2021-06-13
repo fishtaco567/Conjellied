@@ -30,6 +30,14 @@ public class Button : MonoBehaviour {
     [SerializeField]
     protected GameObject down;
 
+    [SerializeField]
+    protected GameObject smok;
+
+    [SerializeField]
+    protected AudioClip pressSound;
+    [SerializeField]
+    protected AudioClip doorOpen;
+
 
     // Use this for initialization
     void Start() {
@@ -71,8 +79,15 @@ public class Button : MonoBehaviour {
     }
 
     public void TryPress(int amount) {
-        if(amount >= reqAmount) {
+        if(amount >= reqAmount && !pressed) {
+            if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                AudioManager.Instance.Play(pressSound);
+            if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                AudioManager.Instance.Play(doorOpen);
             pressed = true;
+            var sp = Instantiate(smok);
+            sp.transform.position = door.transform.position - Vector3.up * 2;
+            Destroy(sp.gameObject, 3f);
         }
     }
 

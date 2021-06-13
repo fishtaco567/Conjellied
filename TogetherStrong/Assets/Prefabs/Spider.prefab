@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 4213649746016263888}
   - component: {fileID: 4213649746016263891}
   - component: {fileID: 4213649746016263902}
-  m_Layer: 2
+  m_Layer: 11
   m_Name: Spider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54,7 +54,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 63616e684b740874eb49553238583ab2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

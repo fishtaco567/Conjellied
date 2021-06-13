@@ -49,7 +49,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 63616e684b740874eb49553238583ab2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -158,7 +158,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 63616e684b740874eb49553238583ab2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -272,6 +272,9 @@ MonoBehaviour:
   reqAmount: 3
   up: {fileID: 7808735203366332470}
   down: {fileID: 7808735203796137879}
+  smok: {fileID: 6661583434635222088, guid: c423b46c4174702478934211f93ea8e1, type: 3}
+  pressSound: {fileID: 8300000, guid: 01f5da8fb494643499986c7296f0a345, type: 3}
+  doorOpen: {fileID: 8300000, guid: 9760ba363e5ca1a43b0c985e10151c64, type: 3}
 --- !u!61 &7808735204846743067
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -314,7 +314,7 @@ GameObject:
   - component: {fileID: 2175926655702051866}
   - component: {fileID: 2175926655702051867}
   - component: {fileID: 6361749690823768106}
-  m_Layer: 2
+  m_Layer: 11
   m_Name: trapezoid_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -354,7 +354,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 63616e684b740874eb49553238583ab2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -414,6 +414,7 @@ MonoBehaviour:
   health: 2
   smokePrefab: {fileID: 2868849163075915744, guid: cf040a4209a199a43a1d797eb5aa9a1b,
     type: 3}
+  shoot: {fileID: 8300000, guid: 6389b2ea8cbfaba46bdc60ffcfe18fb9, type: 3}
 --- !u!95 &2175926655702051868
 Animator:
   serializedVersion: 3

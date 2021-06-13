@@ -11,6 +11,8 @@ public class Spider : Enemy {
     }
 
     [SerializeField]
+    protected AudioClip pop;
+    [SerializeField]
     protected float moveSpeed;
 
     [SerializeField]
@@ -134,6 +136,8 @@ public class Spider : Enemy {
             sp.transform.position = transform.position;
             Destroy(sp, 1f);
             Destroy(this.gameObject);
+            if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                AudioManager.Instance.Play(pop);
         }
         //TODO: DIE
     }

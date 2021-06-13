@@ -70,6 +70,9 @@ public class RollyBoi : Enemy {
     [SerializeField]
     protected GameObject smokePrefab;
 
+    [SerializeField]
+    protected AudioClip shoot;
+
     // Use this for initialization
     void Start() {
         results = new Collider2D[2];
@@ -80,12 +83,12 @@ public class RollyBoi : Enemy {
     }
 
     // Update is called once per frame
-    void Update() {
+    void FixedUpdate() {
         if(controller.collisionState.below) {
             velocity.y = 0;
         }
 
-        velocity.y += Constants.GRAVITY * Time.deltaTime;
+        velocity.y += Constants.GRAVITY * Time.fixedDeltaTime;
 
         PlayerController player = null;
         var num = Physics2D.OverlapCircle(transform.position, shootRange, new ContactFilter2D() { useLayerMask = true, layerMask = LayerMask.GetMask("Slime") }, results);
@@ -97,7 +100,7 @@ public class RollyBoi : Enemy {
             }
         }
 
-        time += Time.deltaTime;
+        time += Time.fixedDeltaTime;
 
         switch(state) {
             case RollyBoiState.Idle:
@@ -236,10 +239,15 @@ public class RollyBoi : Enemy {
             anim.SetBool("Moving", false);
         }
 
-        controller.move(velocity * Time.deltaTime);
+        controller.move(velocity * Time.fixedDeltaTime);
     }
 
+    [SerializeField]
+    protected AudioClip pop;
+
     protected void Hit() {
+        if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+            AudioManager.Instance.Play(shoot);
         var hit = Physics2D.Raycast(transform.position, shootline, shootRange, LayerMask.GetMask("Slime"));
         if(hit.collider != null) {
             var p = hit.collider.GetComponent<PlayerController>();
@@ -264,6 +272,8 @@ public class RollyBoi : Enemy {
             sp.transform.position = transform.position;
             Destroy(sp, 1f);
             Destroy(this.gameObject);
+            if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                AudioManager.Instance.Play(pop);
         }
         //TODO: DIE
     }

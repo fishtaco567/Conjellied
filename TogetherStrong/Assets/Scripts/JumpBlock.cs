@@ -11,6 +11,8 @@ public class JumpBlock : Enemy {
     }
 
     [SerializeField]
+    protected AudioClip pop;
+    [SerializeField]
     protected float maxJumpSpeedX;
 
     [SerializeField]
@@ -60,14 +62,14 @@ public class JumpBlock : Enemy {
     protected bool facing;
 
     // Update is called once per frame
-    void Update() {
+    void FixedUpdate() {
         if(controller.collisionState.below && vel.y < 0) {
             vel.y = 0;
         }
 
-        time += Time.deltaTime;
+        time += Time.fixedDeltaTime;
 
-        vel.y += Constants.GRAVITY * Time.deltaTime;
+        vel.y += Constants.GRAVITY * Time.fixedDeltaTime;
         bool angry = Vector2.Distance(GameManager.Instance.player.transform.position, transform.position) < angerRange;
 
         switch(state) {
@@ -119,7 +121,7 @@ public class JumpBlock : Enemy {
             facing = false;
         }
         anim.SetBool("Facing", facing);
-        controller.move(vel * Time.deltaTime);
+        controller.move(vel * Time.fixedDeltaTime);
     }
 
     public override void OnBounce(int amount) {
@@ -129,6 +131,8 @@ public class JumpBlock : Enemy {
             sp.transform.position = transform.position;
             Destroy(sp, 1f);
             Destroy(this.gameObject);
+            if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                AudioManager.Instance.Play(pop);
         }
         //TODO: DIE
     }

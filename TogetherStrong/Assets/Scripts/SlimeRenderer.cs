@@ -6,51 +6,51 @@ using SharpNoise;
 public class SlimeRenderer : MonoBehaviour {
 
     [SerializeField]
-    protected GameObject slimeballBase;
+    public GameObject slimeballBase;
 
     [SerializeField]
-    protected int maxNumSlimeballs;
+    public int maxNumSlimeballs;
 
     [SerializeField]
-    protected AnimationCurve slimeballToSizeCurve;
+    public AnimationCurve slimeballToSizeCurve;
 
     [SerializeField]
-    protected float slimeballRadius;
+    public float slimeballRadius;
 
     [SerializeField]
-    protected float togetherCoef;
+    public float togetherCoef;
 
     [SerializeField]
-    protected float apartCoef;
+    public float apartCoef;
 
     [SerializeField]
-    protected float perlinCoef;
+    public float perlinCoef;
 
     [SerializeField]
-    protected float avoidSphereCoef;
+    public float avoidSphereCoef;
 
     [SerializeField]
-    protected float xCenter;
+    public float xCenter;
 
     [SerializeField]
-    protected float sitOnTheFloor;
+    public float sitOnTheFloor;
 
     [SerializeField]
-    protected float gravityCoef;
+    public float gravityCoef;
     public float curGravMod;
 
     [SerializeField]
-    protected float lean;
+    public float lean;
 
     [SerializeField]
-    protected float maxTo;
+    public float maxTo;
 
     [SerializeField]
-    protected float maxApt;
+    public float maxApt;
 
     public float curLean;
 
-    protected List<GameObject> slimeballs;
+    public List<GameObject> slimeballs;
     protected List<GameObject> eyes;
 
     protected List<Vector2> slimeballPositions;
@@ -92,6 +92,7 @@ public class SlimeRenderer : MonoBehaviour {
                 var eye = Instantiate(eyeBase);
                 eye.GetComponent<FollowThing>().thing = slimeball;
                 eye.SetActive(false);
+                eye.transform.parent = transform;
                 eyes.Add(eye);
             }
         }
