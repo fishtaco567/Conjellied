@@ -49,6 +49,12 @@ public class JumpBlock : Enemy {
     [SerializeField]
     protected int health = 4;
 
+    [SerializeField]
+    protected AudioClip fall;
+
+    [SerializeField]
+    protected GameObject fallPart;
+
     // Use this for initialization
     void Start() {
         ft = (2 * jumpSpeedY) / Constants.GRAVITY;
@@ -106,6 +112,11 @@ public class JumpBlock : Enemy {
                 break;
             case JumpBlockState.Jump:
                 if(controller.collisionState.below) {
+                    if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                        AudioManager.Instance.PlayQuiet(fall);
+                    var sp2 = Instantiate(fallPart);
+                    sp2.transform.position = transform.position - Vector3.up;
+                    Destroy(sp2, 3f);
                     numJumps += 1;
                     state = JumpBlockState.Idle;
                     time = 0;

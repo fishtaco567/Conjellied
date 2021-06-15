@@ -10,7 +10,6 @@ public class AudioManager : Singleton<AudioManager> {
 
     // Use this for initialization
     void Start() {
-        DontDestroyOnLoad(this.gameObject);
     }
 
     public void Play(AudioClip clip) {

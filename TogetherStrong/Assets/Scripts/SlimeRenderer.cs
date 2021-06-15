@@ -221,7 +221,7 @@ public class SlimeRenderer : MonoBehaviour {
         var maxX = 0.0f;
         var maxY = 0.0f;
         for(int i = 0; i < curNumSlimeballs; i++) {
-            var newPos = slimeballPositions[i] + slimeballVelocities[i] * Time.deltaTime;
+            var newPos = slimeballPositions[i] + slimeballVelocities[i] * Time.unscaledDeltaTime;
             slimeballPositions[i] = newPos;
             var realPos = newPos + origin;
             slimeballs[i].transform.localPosition = newPos + origin;

@@ -27,6 +27,12 @@ public class Smasher : MonoBehaviour {
     public Sprite spriteActive;
     public SpriteRenderer sr;
 
+    [SerializeField]
+    protected AudioClip fall;
+
+    [SerializeField]
+    protected GameObject fallPart;
+
     // Use this for initialization
     void Start() {
         state = SmasherState.Wait;
@@ -52,6 +58,11 @@ public class Smasher : MonoBehaviour {
                 vel.y = Mathf.Min((time / 0.25f) * speedDown, speedDown);
 
                 if(controller.collisionState.below) {
+                    if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                        AudioManager.Instance.Play(fall);
+                    var sp = Instantiate(fallPart);
+                    sp.transform.position = transform.position - Vector3.up;
+                    Destroy(sp, 3f);
                     state = SmasherState.WaitBottom;
                     time = 0;
                 }

@@ -116,6 +116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3526a7fab30ecd8458cfc71f0e2e2962, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pop: {fileID: 0}
   maxJumpSpeedX: 10
   jumpSpeedY: 15
   controller: {fileID: 1060781513708287370}
@@ -126,6 +127,9 @@ MonoBehaviour:
   smokePrefab: {fileID: 2868849163075915744, guid: cf040a4209a199a43a1d797eb5aa9a1b,
     type: 3}
   health: 4
+  fall: {fileID: 8300000, guid: 03acd6760d25adb4bb3c830c96bff233, type: 3}
+  fallPart: {fileID: 6661583434635222088, guid: c423b46c4174702478934211f93ea8e1,
+    type: 3}
 --- !u!61 &1060781513708287368
 BoxCollider2D:
   m_ObjectHideFlags: 0

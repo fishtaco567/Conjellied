@@ -29,7 +29,6 @@ public class Combinator : MonoBehaviour {
             var s = results[i].GetComponent<SlimeController>();
             if(player == null) {
                 var p = results[i].GetComponent<PlayerController>();
-                Debug.Log(p);
                 if(p != null) {
                     player = p;
                 }
@@ -37,16 +36,16 @@ public class Combinator : MonoBehaviour {
             
             if(s != null) {
                 slimes.Add(s);
-                var sp = Instantiate(smok);
-                sp.transform.position = transform.position;
-                Destroy(sp.gameObject, 3f);
-                if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
-                    AudioManager.Instance.Play(combine);
             }
         }
 
         if(player != null) {
             foreach(SlimeController s in slimes) {
+                var sp = Instantiate(smok);
+                sp.transform.position = transform.position;
+                Destroy(sp.gameObject, 3f);
+                if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
+                    AudioManager.Instance.Play(combine);
                 player.AddSlime(s);
             }
         }

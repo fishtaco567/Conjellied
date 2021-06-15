@@ -62,6 +62,9 @@ public class SlimeController : MonoBehaviour {
     [SerializeField]
     protected AudioClip hurt;
 
+    [SerializeField]
+    protected ParticleSystem ps;
+
     // Use this for initialwization
     void Start() {
         results = new Collider2D[2];
@@ -109,8 +112,20 @@ public class SlimeController : MonoBehaviour {
         isProjectile = true;
     }
 
+    protected float lastFrameVel;
+
     // Update is called once per frame
     void FixedUpdate() {
+        lastFrameVel = velocity.y;
+
+        if(controller.collisionState.below && Mathf.Abs(velocity.x) > 0) {
+            var em = ps.emission;
+            em.enabled = true;
+        } else {
+            var em = ps.emission;
+            em.enabled = false;
+        }
+
         iframe -= Time.fixedDeltaTime;
         if(controller.collisionState.below && velocity.y < 0) {
             velocity.y = 0;
@@ -175,8 +190,8 @@ public class SlimeController : MonoBehaviour {
             }
         }
 
-        if(controller.collisionState.becameGroundedThisFrame && velocity.y < 10f) {
-            gravity = 10;
+        if(controller.collisionState.becameGroundedThisFrame && lastFrameVel < -2f) {
+            gravity = Mathf.Min(10 * (-lastFrameVel / 15f), 10);
             if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
                 AudioManager.Instance.PlayQuiet(land);
         }
@@ -197,6 +212,10 @@ public class SlimeController : MonoBehaviour {
     protected AudioClip callResp;
 
     public void Call(float x) {
+        if(!GameManager.Instance.slimes.Contains(this)) {
+            GameManager.Instance.slimes.Add(this);
+        }
+
         if(!moving) {
             AudioManager.Instance.PlayQuiet(callResp);
         }
@@ -207,6 +226,12 @@ public class SlimeController : MonoBehaviour {
 
         callObj.SetActive(true);
         callObjTime = 1f;
+    }
+
+    public void OnDestroy() {
+        if(GameManager.Instance != null && GameManager.Instance.slimes != null) {
+            GameManager.Instance.slimes.Remove(this);
+        }
     }
 
 }

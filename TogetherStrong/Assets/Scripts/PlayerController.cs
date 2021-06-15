@@ -83,6 +83,14 @@ public class PlayerController : MonoBehaviour {
     [SerializeField]
     protected AudioClip throweeee;
 
+    [SerializeField]
+    protected GameObject crown;
+
+    [SerializeField]
+    protected ParticleSystem trail;
+
+    public bool hasWon;
+
     protected void Start() {
         slimeRenderer.curNumSlimeballs = slimeballsPerSlime * numSlimes;
         velocity = Vector2.zero;
@@ -95,9 +103,26 @@ public class PlayerController : MonoBehaviour {
 
         results = new Collider2D[5];
         internalSlimes = new List<SlimeController>();
+        hasWon = false;
     }
 
+    protected float lastFramevel;
+
     protected void FixedUpdate() {
+        if(hasWon) {
+            crown.SetActive(true);
+        }
+
+        lastFramevel = velocity.y;
+
+        if(controller.collisionState.below && Mathf.Abs(velocity.x) > 0.1f) {
+            var em = trail.emission;
+            em.enabled = true;
+        } else {
+            var em = trail.emission;
+            em.enabled = false;
+        }
+
         GameManager.Instance.player = this;
 
         if(canHighJump) {
@@ -151,9 +176,9 @@ public class PlayerController : MonoBehaviour {
             curGravMod = -1f;
         }
 
-        if(controller.collisionState.becameGroundedThisFrame && velocity.y < 10f) {
+        if(controller.collisionState.becameGroundedThisFrame && lastFramevel < -2f) {
             AudioManager.Instance.PlayQuiet(land);
-            curGravMod = 10;
+            curGravMod = Mathf.Min(10 * (-lastFramevel / 15f), 10);
         }
 
         curGravMod += gravModReturnPerSec * Mathf.Sign(1 - curGravMod) * -1f;
@@ -189,6 +214,8 @@ public class PlayerController : MonoBehaviour {
 
         if(!isDead) {
             controller.move(velocity * Time.fixedDeltaTime);
+            slimeRenderer.avoidSphereCoef = 1;
+            slimeRenderer.xCenter = 1;
         } else {
             curGravMod = 10;
             slimeRenderer.avoidSphereCoef = 0;
@@ -259,11 +286,12 @@ public class PlayerController : MonoBehaviour {
         if(iframeTime > 0) {
             return;
         }
-        AudioManager.Instance.PlayQuiet(hurt);
+        if(!isDead)
+            AudioManager.Instance.PlayQuiet(hurt);
 
         velocity = new Vector2(Random.Range(-3, 3), Random.Range(5, 10));
 
-        if(numSlimes == 1) {
+        if(numSlimes == 1 && ! isDead) {
             isDead = true;
             StartCoroutine(OnDeath());
             return;
@@ -347,8 +375,12 @@ public class PlayerController : MonoBehaviour {
     public bool isDead = false;
 
     public System.Collections.IEnumerator OnDeath() {
+        yield return new WaitForSeconds(1f);
+        UIController.Instance.GameOverOn(true);
         yield return new WaitForSeconds(2f);
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0);   
+        UIController.Instance.GameOverOn(false);
+        GameManager.Instance.OnPlayerDeath();
+        //UnityEngine.SceneManagement.SceneManager.LoadScene(0);   
     }
 
 }

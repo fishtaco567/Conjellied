@@ -98,6 +98,17 @@ public class BossOverlord : MonoBehaviour {
         iFrameTime = 0;
     }
 
+    public void Reset() {
+        state = BossState.Shooting;
+        timeShot = 0;
+        b1p = false;
+        b2p = false;
+        results = new Collider2D[4];
+        shieldDownTime = 0;
+        iFrameTime = 0;
+        health = 6;
+    }
+
     // Update is called once per frame
     void Update() {
         iFrameTime -= Time.deltaTime;
@@ -221,7 +232,7 @@ public class BossOverlord : MonoBehaviour {
             if(Vector3.Distance(transform.position, GameManager.Instance.player.transform.position) < 15f)
                 AudioManager.Instance.Play(endExp);
             Destroy(sp.gameObject, 10f);
-            Destroy(destroyWhenDead, 1f);
+            Destroy(destroyWhenDead, 1.5f);
             StartCoroutine(AfterDeath());
         }
     }
@@ -229,8 +240,9 @@ public class BossOverlord : MonoBehaviour {
     bool dead = false;
 
     public IEnumerator AfterDeath() {
-        yield return new WaitForSeconds(4.5f);
+        yield return new WaitForSeconds(1f);
 
+        GameManager.Instance.player.hasWon = true;
         onWhenDead.SetActive(true);
     }
 

@@ -107,6 +107,9 @@ MonoBehaviour:
   spriteInactive: {fileID: 21300000, guid: 6e62e2ef4ebe84f4ab648f16383910c6, type: 3}
   spriteActive: {fileID: 21300002, guid: 6e62e2ef4ebe84f4ab648f16383910c6, type: 3}
   sr: {fileID: 5797278515703018901}
+  fall: {fileID: 8300000, guid: 03acd6760d25adb4bb3c830c96bff233, type: 3}
+  fallPart: {fileID: 6661583434635222088, guid: c423b46c4174702478934211f93ea8e1,
+    type: 3}
 --- !u!61 &5797278515703018903
 BoxCollider2D:
   m_ObjectHideFlags: 0
